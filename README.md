@@ -1,23 +1,32 @@
 # cursor-skills
 
-Backup privado das skills globais do Cursor / agents.
+Backup privado das skills e hooks globais do Cursor / agents.
 
 ## Estrutura
 
-| Pasta | Origem local | Uso |
-|-------|--------------|-----|
+| Pasta / arquivo | Origem local | Uso |
+|-----------------|--------------|-----|
 | `cursor-skills/` | `~/.cursor/skills/` | Skills pessoais do Cursor |
 | `agents-skills/` | `~/.agents/skills/` | Skills instaladas em `~/.agents/skills` |
+| `cursor-hooks/hooks.json` | `~/.cursor/hooks.json` | Config dos hooks de usuário |
+| `cursor-hooks/hooks/` | `~/.cursor/hooks/` | Scripts dos hooks |
 
 ## Restaurar em outra máquina
 
 ```bash
 # Cursor (pessoais)
+mkdir -p ~/.cursor/skills
 cp -a cursor-skills/. ~/.cursor/skills/
 
 # Agents
 mkdir -p ~/.agents/skills
 cp -a agents-skills/. ~/.agents/skills/
+
+# Hooks
+mkdir -p ~/.cursor/hooks
+cp -a cursor-hooks/hooks.json ~/.cursor/hooks.json
+cp -a cursor-hooks/hooks/. ~/.cursor/hooks/
+chmod +x ~/.cursor/hooks/*.sh
 ```
 
 ## Sync automático
@@ -26,8 +35,10 @@ Um hook de usuário (`~/.cursor/hooks.json` → `afterFileEdit`) sincroniza este
 
 - `~/.cursor/skills/`
 - `~/.agents/skills/`
+- `~/.cursor/hooks/`
+- `~/.cursor/hooks.json`
 
-Fluxo: debounce ~4s → `rsync` → `git commit` → `git push`.
+Fluxo: debounce ~4s → `rsync`/`cp` → `git commit` → `git push`.
 
 Scripts:
 
@@ -41,6 +52,6 @@ Scripts:
 
 Log: `${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync/sync.log`
 
-Se a skill for criada só via shell (`mkdir`/`cp` sem Write/StrReplace), o hook não dispara — rode o sync manual.
+Se algo for criado só via shell (`mkdir`/`cp` sem Write/StrReplace), o hook não dispara — rode o sync manual.
 
 Não versionar `~/.cursor/skills-cursor/` — essa pasta é gerenciada pelo Cursor.
