@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "./hooks/git-pull-on-session-start.sh",
+        "timeout": 60
+      }
+    ],
+    "workspaceOpen": [
+      {
+        "command": "./hooks/setup-githooks.sh"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "./hooks/git-pull-on-branch-switch.sh",
+        "matcher": "git\\s+(checkout|switch)\\b"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "./hooks/sync-skills-on-edit.sh",
+        "timeout": 15
+      }
+    ]
+  }
+}
