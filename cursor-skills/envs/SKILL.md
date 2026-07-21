@@ -136,3 +136,4 @@ Tabela markdown **estrita** com 3 colunas — sem seções extras, sem colunas a
 - **Read-only** — não editar `.env`, `.env.example`, `env.ts` nem secrets managers.
 - Não commitar nem expor valores de `.env` locais (só `.env.example` e defaults de schema).
 - Não listar envs que já existiam na base, mesmo que o valor tenha mudado.
+
