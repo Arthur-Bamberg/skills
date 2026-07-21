@@ -20,11 +20,27 @@ mkdir -p ~/.agents/skills
 cp -a agents-skills/. ~/.agents/skills/
 ```
 
-## Atualizar este backup a partir da máquina local
+## Sync automático
+
+Um hook de usuário (`~/.cursor/hooks.json` → `afterFileEdit`) sincroniza este repo sempre que o Agent edita arquivos em:
+
+- `~/.cursor/skills/`
+- `~/.agents/skills/`
+
+Fluxo: debounce ~4s → `rsync` → `git commit` → `git push`.
+
+Scripts:
+
+- `~/.cursor/hooks/sync-skills-on-edit.sh` — disparado pelo hook
+- `~/.cursor/hooks/sync-skills-to-backup.sh` — sync manual / usado pelo hook
 
 ```bash
-rsync -a --delete ~/.cursor/skills/ ./cursor-skills/
-rsync -a --delete ~/.agents/skills/ ./agents-skills/
+# sync manual (commit + push)
+~/.cursor/hooks/sync-skills-to-backup.sh
 ```
+
+Log: `${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync/sync.log`
+
+Se a skill for criada só via shell (`mkdir`/`cp` sem Write/StrReplace), o hook não dispara — rode o sync manual.
 
 Não versionar `~/.cursor/skills-cursor/` — essa pasta é gerenciada pelo Cursor.
