@@ -54,7 +54,7 @@ User rules: cole o bloco de `user-rules.md` em Cursor → Settings → Rules.
 
 ## Inventário
 
-**Skills** (`skills/`, via `owned-skills.txt`): `commit-push`, `envs`, `feature-loop`, `plan-feature-loop`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`, `slack-grill-ship`
+**Skills** (`skills/`, via `owned-skills.txt`): `commit-push`, `envs`, `feature-loop`, `plan-feature-loop`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`
 
 **Agents** (`agents/`): `code-reviewer`, `plano-de-testes`
 
