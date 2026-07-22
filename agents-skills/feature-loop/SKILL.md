@@ -1,6 +1,6 @@
 ---
 name: feature-loop
-description: Pipeline completo de feature — grill-with-docs (sempre seguindo a recomendação), confirmação de decisões, TDD unitário, implementação, revisão, testes locais, e2e e guia do caminho feliz. Use quando o usuário pedir feature-loop, /feature-loop, ou um fluxo grill→TDD→review→e2e.
+description: Pipeline completo de feature — decisões em lote (lista em markdown com opções + recomendação, depois revisão global), confirmação, TDD unitário, implementação, review, testes locais, e2e e guia do caminho feliz. Use quando o usuário pedir feature-loop, /feature-loop, ou o fluxo decisões→TDD→review→e2e.
 disable-model-invocation: true
 ---
 
@@ -8,9 +8,11 @@ disable-model-invocation: true
 
 Pipeline sequencial para entregar uma feature com decisões documentadas, TDD e verificação ponta a ponta.
 
-Skills relacionadas (ler e seguir quando a fase exigir):
+**Não** use o modo entrevista uma-a-uma do `grill-with-docs`. Aqui o grill é em lote: pensar → listar em markdown → repensar o conjunto → confirmar.
 
-- `grill-with-docs` — `~/.agents/skills/grill-with-docs/SKILL.md`
+Skills / refs (ler quando a fase exigir):
+
+- Domínio / formatos: `~/.agents/skills/grill-with-docs/` (`CONTEXT-FORMAT.md`, `ADR-FORMAT.md`)
 - `tdd` — `~/.agents/skills/tdd/SKILL.md`
 - `review` — `~/.agents/skills/review/SKILL.md`
 
@@ -18,7 +20,7 @@ Skills relacionadas (ler e seguir quando a fase exigir):
 
 ### Sempre seguir a recomendação
 
-No grill e em qualquer decisão de design: para cada pergunta, declare a **recomendação** e **aplique-a** a menos que o usuário override explicitamente. Não deixe a decisão em aberto entre opções equivalentes.
+Em cada decisão: declare opções, marque a **recomendação**, e **aplique-a** salvo override explícito do usuário. Não deixe decisão empatada entre opções.
 
 ### Loop de correção (progresso vs stuck)
 
@@ -43,7 +45,7 @@ Mantenha um diário durante toda a sessão. No fim (ou na parada), entregue a ta
 | 1 | … | unit / e2e / review / local / outro | resolvido / bloqueado | … |
 ```
 
-Fases válidas: `grill`, `unit`, `impl`, `review`, `local`, `e2e`, `outro` (nomear o outro).
+Fases válidas: `decisions`, `unit`, `impl`, `review`, `local`, `e2e`, `outro` (nomear o outro).
 
 ---
 
@@ -51,38 +53,112 @@ Fases válidas: `grill`, `unit`, `impl`, `review`, `local`, `e2e`, `outro` (nome
 
 Confirme em uma frase o que será construído e em qual repo/pasta. Se o workspace não for o projeto certo, mova o agent para a raiz do projeto antes de editar código.
 
----
-
-## Fase 1 — Grill (com docs)
-
-Siga `grill-with-docs` na íntegra, com estes overrides:
-
-1. Uma pergunta por vez; espere feedback.
-2. Em **toda** pergunta: proponha a recomendação e, salvo override do usuário, **trate a recomendação como decisão**.
-3. Explore o codebase quando a resposta estiver lá.
-4. Atualize `CONTEXT.md` / ADRs conforme a skill (lazy, só quando houver o que escrever).
-
-Não pule para TDD enquanto houver ramo aberto no design tree.
+Defina um slug curto da feature (ex.: `checkout-parcial`) para os markdowns.
 
 ---
 
-## Fase 2 — Confirmação de decisões
+## Fase 1 — Decisões em lote (pensar → anotar → repensar)
 
-Antes de qualquer teste ou implementação, apresente um resumo curto e peça confirmação explícita:
+**Proibido:** perguntar uma decisão por vez e esperar resposta entre elas.
+
+### 1.1 Explorar
+
+Antes de decidir, explore o que já existe:
+
+- Código relevante
+- `CONTEXT.md` / `CONTEXT-MAP.md`
+- `docs/adr/` (e ADRs por contexto, se houver)
+
+Se um fato estiver no código ou nos docs, use-o — não invente pergunta ociosa.
+
+### 1.2 Pensar e anotar (passagem 1)
+
+Percorra a árvore de design sozinho. Para cada ramo aberto, registre **uma entrada** no markdown de decisões.
+
+Grave o arquivo (crie pastas se precisar):
+
+`.scratch/feature-loop/<slug>/decisions.md`
+
+Use este formato:
+
+```markdown
+# Decisões — <feature>
+
+## Contexto
+[1–3 frases do que será feito e o que já existe no domínio]
+
+## Lista
+
+### D1 — <título curto>
+- **Pergunta:** …
+- **Opções:**
+  - A: …
+  - B: …
+  - C: … (se houver)
+- **Recomendado:** A — <motivo em 1 frase>
+- **Status:** proposto
+
+### D2 — …
+…
+```
+
+Regras da lista:
+
+- Cubra dependências entre decisões (se D3 depende de D1, diga).
+- Opções reais, não falsas dicotomias.
+- Sempre um **Recomendado** com motivo curto.
+- Vocabulário alinhado ao `CONTEXT.md`; se houver conflito de termo, resolva na lista (recomendando o canônico).
+
+Ainda **não** peça confirmação do usuário neste passo.
+
+### 1.3 Repensar o conjunto (passagem 2)
+
+Com a lista completa, releia **tudo** de ponta a ponta e revise o mesmo arquivo:
+
+- Contradições entre recomendações
+- Lacunas (ramos esquecidos)
+- Opções fracas ou redundantes
+- Impacto de uma escolha nas demais
+
+Atualize `decisions.md` no lugar (mude recomendações, una/elimine entradas, marque o que mudou).
+
+Ao final da passagem 2, adicione:
+
+```markdown
+## Revisão global
+- Data/hora da passagem 2
+- O que mudou vs passagem 1 (bullets)
+- Riscos remanescentes (se houver)
+```
+
+Opcional (lazy, só se couber):
+
+- Atualizar `CONTEXT.md` com termos **já resolvidos** na lista (formato em `CONTEXT-FORMAT.md`)
+- Oferecer ADR só se for hard-to-reverse + surpreendente + trade-off real (`ADR-FORMAT.md`)
+
+---
+
+## Fase 2 — Confirmação
+
+Mostre o conteúdo consolidado de `decisions.md` (ou um resumo + caminho do arquivo) e peça confirmação explícita.
+
+Template de fechamento no chat:
 
 ```markdown
 ## Perguntas e decisões
 
-| # | Pergunta | Decisão (recomendação aplicada / override) |
-|---|----------|-----------------------------------------------|
-| 1 | … | … |
+| # | Pergunta | Recomendado | Override do usuário |
+|---|----------|-------------|---------------------|
+| D1 | … | … | (vazio = aceito) |
 
 ## Escopo da implementação
 - Comportamentos a cobrir (unit): …
 - Fora de escopo: …
 ```
 
-**Pare aqui** até o usuário confirmar (ou ajustar). Só então vá para a Fase 3.
+**Pare aqui** até o usuário confirmar ou ajustar. Aplique overrides no `decisions.md` (`Status: confirmado` / `Status: override — …`).
+
+Só então vá para a Fase 3. A implementação segue as recomendações confirmadas.
 
 ---
 
@@ -90,7 +166,7 @@ Antes de qualquer teste ou implementação, apresente um resumo curto e peça co
 
 Siga `tdd`:
 
-1. Planeje comportamentos e interface pública; alinhe vocabulário com `CONTEXT.md` / ADRs.
+1. Planeje comportamentos e interface pública; alinhe com `CONTEXT.md` / ADRs / `decisions.md`.
 2. **Vertical slices**: um teste → implementação mínima → próximo. Proibido escrever todos os testes e depois toda a impl.
 3. RED → GREEN; refactor só em GREEN.
 4. Testes de comportamento via interface pública (não detalhes internos).
@@ -101,9 +177,9 @@ Aplique o **loop de correção** se um teste ou implementação emperrar no mesm
 
 ## Fase 4 — Revisão de código
 
-Revise o diff da feature (contra a base combinada com o usuário, default `main`):
+Revise o diff da feature (base combinada com o usuário, default `main`):
 
-- Eixos: **Standards** (convenções do repo) e **Spec** (decisões da Fase 2 + comportamentos acordados).
+- Eixos: **Standards** (convenções do repo) e **Spec** (`decisions.md` confirmado + comportamentos acordados).
 - Preferir a skill `review` quando houver ponto fixo e spec; senão, revisão direta equivalente.
 
 Para cada achado acionável: corrija seguindo o **loop de correção**. Achados cosméticos opcionais: listar, não bloquear.
@@ -148,7 +224,7 @@ Pré-requisitos: …
 Resultado esperado: …
 ```
 
-Seja concreto (URLs, comandos, dados de exemplo). Sem alternativa longa — um caminho feliz claro.
+Seja concreto (URLs, comandos, dados de exemplo). Um caminho feliz claro.
 
 ---
 
@@ -157,8 +233,9 @@ Seja concreto (URLs, comandos, dados de exemplo). Sem alternativa longa — um c
 Ao concluir (ou ao parar por erro repetido), entregue nesta ordem:
 
 1. Status do pipeline (qual fase terminou / onde parou).
-2. Tabela de bugs (diário).
-3. Caminho feliz manual (se chegou na Fase 7).
-4. Próximo passo sugerido só se bloqueado (ex.: decisão humana necessária).
+2. Caminho de `decisions.md` (se existir).
+3. Tabela de bugs (diário).
+4. Caminho feliz manual (se chegou na Fase 7).
+5. Próximo passo sugerido só se bloqueado.
 
 Não faça commit/PR a menos que o usuário peça.
