@@ -21,6 +21,17 @@ Refs de domínio (ler quando precisar):
 
 Em cada decisão: declare opções, marque a **recomendação**, e **aplique-a** salvo override explícito do usuário. Não deixe decisão empatada entre opções.
 
+### Direcionamento de modelo (pedir troca)
+
+Fases 0–2 rodam em **Grok 4.5 High**. Se o chat estiver noutro modelo (ou você não puder trocar), **peça ao usuário** trocar no picker e confirmar antes de seguir:
+
+```markdown
+Para planejar preciso do modelo **Grok 4.5 High**.
+Troque no picker do chat e confirme aqui para eu continuar.
+```
+
+**Não use GPT-5.4 Nano** como modelo desta fase. (Nano só entra como cenário de custo em `/mvp-plan-doc`, não no pipeline de entrega.)
+
 ---
 
 ## Fase 0 — Escopo
