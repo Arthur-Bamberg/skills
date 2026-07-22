@@ -9,9 +9,8 @@ Em **toda** alteração neste repo, antes de considerar a tarefa concluída, atu
 
 ## Quando atualizar
 
-- Skill adicionada/renomeada/removida em `cursor-skills/`
+- Skill adicionada/renomeada/removida em `agents-skills/` (whitelist em `owned-agents-skills.txt`)
 - Agent adicionado/renomeado/removido em `cursor-agents/`
-- Agents skill na whitelist (`agents-skills/` + `owned-agents-skills.txt`)
 - Hook ou `hooks.json` mudou de forma que afete restore/sync
 - User Rules (`cursor-user-rules.md`) — conferir seção de inventário/restore
 - Pasta/arquivo novo no backup, ou path de origem/sync alterado
@@ -28,9 +27,8 @@ Em **toda** alteração neste repo, antes de considerar a tarefa concluída, atu
 Liste o disco e compare com o README:
 
 ```bash
-ls cursor-skills/
-ls cursor-agents/
 ls agents-skills/
+ls cursor-agents/
 grep -vE '^\s*(#|$)' owned-agents-skills.txt
 ```
 

@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Sync personal Cursor skills, agents, owned agents-skills, and user hooks into the private backup repo and push.
+# Sync personal owned agents-skills, Cursor agents, and user hooks into the private backup repo and push.
 set -euo pipefail
 
 REPO="${CURSOR_SKILLS_BACKUP_REPO:-$HOME/Projects/cursor-skills}"
-CURSOR_SKILLS="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 CURSOR_AGENTS="${CURSOR_AGENTS_DIR:-$HOME/.cursor/agents}"
 AGENTS_SKILLS="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 CURSOR_HOOKS_DIR="${CURSOR_HOOKS_DIR:-$HOME/.cursor/hooks}"
@@ -24,20 +23,22 @@ fi
 
 cd "$REPO"
 
-# Personal Cursor skills — tudo em ~/.cursor/skills é seu
-mkdir -p "$CURSOR_SKILLS"
-rsync -a --delete --exclude '.git' "$CURSOR_SKILLS/" "$REPO/cursor-skills/"
-
 # Custom Cursor agents — tudo em ~/.cursor/agents é seu
 mkdir -p "$CURSOR_AGENTS" "$REPO/cursor-agents"
 rsync -a --delete --exclude '.git' "$CURSOR_AGENTS/" "$REPO/cursor-agents/"
 
-# Agents skills — só as listadas em owned-agents-skills.txt
+# Owned agents skills — só as listadas em owned-agents-skills.txt
 mkdir -p "$REPO/agents-skills" "$AGENTS_SKILLS"
 if [[ -f "$OWNED_LIST" ]]; then
   mapfile -t owned < <(grep -vE '^\s*(#|$)' "$OWNED_LIST")
 else
   owned=()
+fi
+
+# Remove legado cursor-skills/ (skills pessoais agora vivem em agents-skills/)
+if [[ -d "$REPO/cursor-skills" ]]; then
+  rm -rf "$REPO/cursor-skills"
+  log "removed legacy: cursor-skills/"
 fi
 
 # Remove do repo qualquer agent skill que não seja owned
@@ -77,7 +78,7 @@ if [[ -d "$CURSOR_HOOKS_DIR" ]]; then
   rsync -a --delete --exclude '.git' "$CURSOR_HOOKS_DIR/" "$REPO/cursor-hooks/hooks/"
 fi
 
-git add -A cursor-skills cursor-agents agents-skills cursor-hooks owned-agents-skills.txt README.md
+git add -A agents-skills cursor-agents cursor-hooks owned-agents-skills.txt README.md .cursor/rules/
 
 if git diff --cached --quiet; then
   log "noop: no skill/hook/agent changes"
