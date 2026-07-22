@@ -15,9 +15,11 @@ Nenhuma ferramenta carrega este arquivo automaticamente. Em máquina nova, cole 
 Isto é preferência de fluxo — a ferramenta não troca o modelo sozinho via rule. Em cada fase, use (ou peça troca no picker / subagent com o modelo certo):
 
 - **Decisões / plano / review:** Grok 4.5 High
-- **Implementação (TDD):** Composer 2.5
+- **Implementação (TDD) / coding agentico no IDE:** Composer 2.5 (pool próprio)
 - **E2E caminho feliz:** testes locais sem chamar LLM real (stubs/fixtures)
 - Prefira pool First-party (Composer / Grok) em vez de modelos API caros, salvo necessidade explícita.
+- **Não use GPT-5.4 Nano** como modelo principal de agente ou implementação. Nano só para subtarefas estreitas (classificação, extração, ranking) se o objetivo for minimizar custo de API — perde ~23 pts em Terminal-Bench 2.0 vs Composer 2.5 e consome o pool de API.
+- Comparativo e fontes: `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` neste backup.
 ```
 
 ## Como restaurar
@@ -29,3 +31,5 @@ Isto é preferência de fluxo — a ferramenta não troca o modelo sozinho via r
 ## Manutenção
 
 Quando alterar a regra na ferramenta, atualize este arquivo (sem sync automático).
+
+Comparativo de modelos: ver `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx`.

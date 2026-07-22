@@ -15,6 +15,7 @@ Branch padrão: **main**.
 | `agents/` | definições de subagent (ex. `~/.cursor/agents/`) | automático |
 | `hooks/` | hooks da ferramenta (ex. `~/.cursor/hooks.json` + scripts) | automático |
 | `user-rules.md` | regras globais do assistente | **manual** |
+| `canvases/` | canvases de referência (comparativos, etc.) | **manual** |
 | `.cursor/rules/` | regras deste repo | — |
 
 ### Paths globais (OpenCode)
@@ -35,7 +36,9 @@ Este repo faz backup da whitelist em `~/.agents/skills` e **espelha** opcionalme
 
 **Agents** (`agents/`): `code-reviewer`, `plano-de-testes`
 
-**User rules** (`user-rules.md`): preferências de modelo do feature-loop (restaurar manualmente na ferramenta)
+**User rules** (`user-rules.md`): preferências de modelo do feature-loop (Composer 2.5 p/ implementação; evitar GPT-5.4 Nano como agente principal — restaurar manualmente na ferramenta)
+
+**Canvases** (`canvases/`): `composer-2-5-vs-gpt-5-4-nano.canvas.tsx` (comparativo de benchmarks/preços)
 
 **Rules do repo** (`.cursor/rules/`): `keep-readme-updated`
 
