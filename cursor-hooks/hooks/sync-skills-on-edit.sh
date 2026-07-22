@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# afterFileEdit: if a global skill or user hook changed, debounce then sync backup repo.
+# afterFileEdit: if a personal skill or user hook changed, debounce then sync backup repo.
 set -euo pipefail
 
 input=$(cat)
@@ -9,6 +9,8 @@ CURSOR_SKILLS="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 AGENTS_SKILLS="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 CURSOR_HOOKS_DIR="${CURSOR_HOOKS_DIR:-$HOME/.cursor/hooks}"
 CURSOR_HOOKS_JSON="${CURSOR_HOOKS_JSON:-$HOME/.cursor/hooks.json}"
+REPO="${CURSOR_SKILLS_BACKUP_REPO:-$HOME/Projects/cursor-skills}"
+OWNED_LIST="${OWNED_AGENTS_SKILLS_LIST:-$REPO/owned-agents-skills.txt}"
 SYNC_SCRIPT="$HOME/.cursor/hooks/sync-skills-to-backup.sh"
 LOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync"
 TRIGGER="$LOCK_DIR/pending"
@@ -16,8 +18,26 @@ DEBOUNCE_SECS="${CURSOR_SKILLS_SYNC_DEBOUNCE:-4}"
 
 mkdir -p "$LOCK_DIR"
 
+is_owned_agent_path() {
+  local path="$1"
+  case "$path" in
+    "$AGENTS_SKILLS"/*) ;;
+    *) return 1 ;;
+  esac
+  local rel="${path#"$AGENTS_SKILLS"/}"
+  local name="${rel%%/*}"
+  [[ -n "$name" && -f "$OWNED_LIST" ]] || return 1
+  grep -vE '^\s*(#|$)' "$OWNED_LIST" | grep -qxF "$name"
+}
+
 case "$file_path" in
-  "$CURSOR_SKILLS"/* | "$AGENTS_SKILLS"/* | "$CURSOR_HOOKS_DIR"/* | "$CURSOR_HOOKS_JSON") ;;
+  "$CURSOR_SKILLS"/* | "$CURSOR_HOOKS_DIR"/* | "$CURSOR_HOOKS_JSON") ;;
+  "$AGENTS_SKILLS"/*)
+    if ! is_owned_agent_path "$file_path"; then
+      printf '%s\n' '{}'
+      exit 0
+    fi
+    ;;
   *)
     printf '%s\n' '{}'
     exit 0

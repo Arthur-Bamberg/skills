@@ -1,0 +1,4 @@
+# Agent skills pessoais versionadas neste repo (uma por linha).
+# Skills de terceiros em ~/.agents/skills continuam instaladas localmente,
+# mas NÃO entram no backup.
+feature-loop

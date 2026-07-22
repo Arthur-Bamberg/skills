@@ -1,15 +1,29 @@
 # cursor-skills
 
-Backup privado das skills e hooks globais do Cursor / agents.
+Backup privado das **skills e hooks pessoais** do Cursor / agents.
+
+Só entra o que é seu. Skills de terceiros (Matt Pocock, caveman, find-skills, etc.) podem continuar em `~/.agents/skills`, mas **não** são versionadas aqui.
 
 ## Estrutura
 
 | Pasta / arquivo | Origem local | Uso |
 |-----------------|--------------|-----|
 | `cursor-skills/` | `~/.cursor/skills/` | Skills pessoais do Cursor |
-| `agents-skills/` | `~/.agents/skills/` | Skills instaladas em `~/.agents/skills` |
+| `agents-skills/` | `~/.agents/skills/<nome>` | Só agents skills listadas em `owned-agents-skills.txt` |
+| `owned-agents-skills.txt` | — | Whitelist das agents skills pessoais |
 | `cursor-hooks/hooks.json` | `~/.cursor/hooks.json` | Config dos hooks de usuário |
 | `cursor-hooks/hooks/` | `~/.cursor/hooks/` | Scripts dos hooks |
+
+### Cursor skills (pessoais)
+
+Tudo em `~/.cursor/skills/` é sincronizado.
+
+### Agents skills (pessoais)
+
+Só as linhas de `owned-agents-skills.txt` entram no repo. Para versionar uma skill nova em `~/.agents/skills/`:
+
+1. Adicione o nome da pasta em `owned-agents-skills.txt`
+2. Rode o sync manual (ou edite a skill e espere o hook)
 
 ## Restaurar em outra máquina
 
@@ -18,7 +32,7 @@ Backup privado das skills e hooks globais do Cursor / agents.
 mkdir -p ~/.cursor/skills
 cp -a cursor-skills/. ~/.cursor/skills/
 
-# Agents
+# Agents (só as suas)
 mkdir -p ~/.agents/skills
 cp -a agents-skills/. ~/.agents/skills/
 
@@ -31,10 +45,10 @@ chmod +x ~/.cursor/hooks/*.sh
 
 ## Sync automático
 
-Um hook de usuário (`~/.cursor/hooks.json` → `afterFileEdit`) sincroniza este repo sempre que o Agent edita arquivos em:
+Um hook de usuário (`~/.cursor/hooks.json` → `afterFileEdit`) sincroniza este repo quando o Agent edita:
 
-- `~/.cursor/skills/`
-- `~/.agents/skills/`
+- `~/.cursor/skills/` (qualquer skill pessoal)
+- `~/.agents/skills/<owned>/` (só whitelist)
 - `~/.cursor/hooks/`
 - `~/.cursor/hooks.json`
 

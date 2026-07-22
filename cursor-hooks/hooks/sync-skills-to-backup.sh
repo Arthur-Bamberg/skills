@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync global Cursor skills, agents skills, and user hooks into the private backup repo and push.
+# Sync personal Cursor skills, owned agents skills, and user hooks into the private backup repo and push.
 set -euo pipefail
 
 REPO="${CURSOR_SKILLS_BACKUP_REPO:-$HOME/Projects/cursor-skills}"
@@ -7,6 +7,7 @@ CURSOR_SKILLS="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 AGENTS_SKILLS="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 CURSOR_HOOKS_DIR="${CURSOR_HOOKS_DIR:-$HOME/.cursor/hooks}"
 CURSOR_HOOKS_JSON="${CURSOR_HOOKS_JSON:-$HOME/.cursor/hooks.json}"
+OWNED_LIST="${OWNED_AGENTS_SKILLS_LIST:-$REPO/owned-agents-skills.txt}"
 LOG_DIR="${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync"
 mkdir -p "$LOG_DIR"
 LOG="$LOG_DIR/sync.log"
@@ -22,9 +23,45 @@ fi
 
 cd "$REPO"
 
+# Personal Cursor skills — tudo em ~/.cursor/skills é seu
 rsync -a --delete --exclude '.git' "$CURSOR_SKILLS/" "$REPO/cursor-skills/"
-mkdir -p "$AGENTS_SKILLS"
-rsync -a --delete --exclude '.git' "$AGENTS_SKILLS/" "$REPO/agents-skills/"
+
+# Agents skills — só as listadas em owned-agents-skills.txt
+mkdir -p "$REPO/agents-skills" "$AGENTS_SKILLS"
+if [[ -f "$OWNED_LIST" ]]; then
+  mapfile -t owned < <(grep -vE '^\s*(#|$)' "$OWNED_LIST")
+else
+  owned=()
+fi
+
+# Remove do repo qualquer agent skill que não seja owned
+shopt -s nullglob
+for d in "$REPO/agents-skills"/*/; do
+  name=$(basename "$d")
+  keep=false
+  for o in "${owned[@]+"${owned[@]}"}"; do
+    if [[ "$name" == "$o" ]]; then
+      keep=true
+      break
+    fi
+  done
+  if [[ "$keep" != true ]]; then
+    rm -rf "$d"
+    log "removed non-owned from repo: agents-skills/$name"
+  fi
+done
+shopt -u nullglob
+
+for name in "${owned[@]+"${owned[@]}"}"; do
+  src="$AGENTS_SKILLS/$name"
+  dst="$REPO/agents-skills/$name"
+  if [[ -d "$src" ]]; then
+    mkdir -p "$dst"
+    rsync -a --delete --exclude '.git' "$src/" "$dst/"
+  else
+    log "warn: owned agent skill missing locally: $name"
+  fi
+done
 
 mkdir -p "$REPO/cursor-hooks/hooks"
 if [[ -f "$CURSOR_HOOKS_JSON" ]]; then
@@ -34,7 +71,7 @@ if [[ -d "$CURSOR_HOOKS_DIR" ]]; then
   rsync -a --delete --exclude '.git' "$CURSOR_HOOKS_DIR/" "$REPO/cursor-hooks/hooks/"
 fi
 
-git add cursor-skills agents-skills cursor-hooks
+git add -A cursor-skills agents-skills cursor-hooks owned-agents-skills.txt README.md
 
 if git diff --cached --quiet; then
   log "noop: no skill/hook changes"
@@ -44,7 +81,7 @@ fi
 changed=$(git diff --cached --name-only | head -20 | tr '\n' ' ')
 msg="chore(skills): sync backup
 
-Atualização automática após edição em skills/hooks globais.
+Atualização automática após edição em skills/hooks pessoais.
 Arquivos: ${changed}"
 
 git commit -m "$msg" >/dev/null
