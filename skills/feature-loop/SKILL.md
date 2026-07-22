@@ -21,6 +21,27 @@ Skills / refs (ler quando a fase exigir):
 
 ## Regras transversais
 
+### Direcionamento de modelo (pedir troca)
+
+O Cursor **não troca o modelo sozinho** via skill/rule. Em cada fase, use o modelo certo — e se o chat estiver no modelo errado (ou você não puder trocar), **pare e peça ao usuário** trocar no picker, depois confirme para continuar.
+
+| Fase | Modelo / modo |
+|------|----------------|
+| Decisões / plano / review (Fases 1–2, 4) | Grok 4.5 High |
+| Implementação TDD + escrever e2e (Fases 3, 5–6 escrever) | Composer 2.5 |
+| Rodar e2e caminho feliz | testes locais **sem** LLM real |
+
+**Não use GPT-5.4 Nano** como modelo principal de agente ou implementação. Nano só para subtarefas estreitas (classificação / extração / ranking); consome pool **API** e fica ~23 pts atrás do Composer em Terminal-Bench 2.0 (ver `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` no repo `skills`).
+
+Template de pedido (copiar/adaptar):
+
+```markdown
+Para a Fase <N> preciso do modelo **<Grok 4.5 High | Composer 2.5>**.
+Troque no picker do chat e confirme aqui para eu continuar.
+```
+
+Peça a troca **no início da fase** e de novo se perceber mid-fase que o modelo ativo não é o da tabela.
+
 ### Sempre seguir a recomendação
 
 Em cada decisão: declare opções, marque a **recomendação**, e **aplique-a** salvo override explícito do usuário. Não deixe decisão empatada entre opções.
@@ -57,6 +78,8 @@ Fases válidas: `decisions`, `unit`, `impl`, `review`, `local`, `e2e`, `outro` (
 Confirme em uma frase o que será construído e em qual repo/pasta. Se o workspace não for o projeto certo, mova o agent para a raiz do projeto antes de editar código.
 
 Defina um slug curto da feature (ex.: `checkout-parcial`) para os markdowns.
+
+Antes da Fase 1: se o modelo ativo **não** for Grok 4.5 High, peça a troca (ver **Direcionamento de modelo**).
 
 ---
 
@@ -167,6 +190,8 @@ Só então vá para a Fase 3. A implementação segue as recomendações confirm
 
 ## Fase 3 — TDD unitário → implementação
 
+**Antes de codar:** se o modelo ativo **não** for Composer 2.5, peça ao usuário trocar no picker e só continue após confirmação.
+
 Siga `tdd`:
 
 1. Planeje comportamentos e interface pública; alinhe com `CONTEXT.md` / ADRs / `decisions.md`.
@@ -179,6 +204,8 @@ Aplique o **loop de correção** se um teste ou implementação emperrar no mesm
 ---
 
 ## Fase 4 — Revisão de código
+
+**Antes de revisar:** se o modelo ativo **não** for Grok 4.5 High, peça a troca no picker.
 
 Revise o diff da feature (base combinada com o usuário, default `main`):
 

@@ -5,18 +5,23 @@ Preencha e grave neste formato. Seções de **Custo Cursor** e **Tempo Cloud Age
 ```markdown
 ## Custo Cursor (estimativa de uso do plano)
 
-**Resumo:** pipeline Grok 4.5 High (planejar/validar) + Composer 2.5 (implementar) + e2e local **sem IA** → pool **First-party**. Enquanto First-party aguentar: **~0% do budget API**. Número confiável = **$ equivalente**; % First-party é chute (pool “generous” não público).
+**Resumo:** pipeline recomendado = Grok 4.5 High (planejar/validar) + Composer 2.5 (implementar) + e2e local **sem IA** → pool **First-party**. Enquanto First-party aguentar: **~0% do budget API**. Número confiável = **$ equivalente**; % First-party é chute (pool “generous” não público).
+
+**Comparativo:** se a **impl** rodasse em GPT-5.4 Nano (pool **API**), o $ de impl cai (~0,47× vs Composer no blend 70/30), mas consome API e **não** é o pipeline de entrega (Nano perde ~23 pts em Terminal-Bench 2.0 vs Composer).
+
+**Direcionamento de modelo:** a IA **não troca o modelo sozinho**. Em cada fase do `/feature-loop`, peça ao usuário trocar no picker se o chat estiver no modelo errado.
 
 ### Preços de referência
-| Modelo | Input / 1M | Output / 1M | Pool |
-|--------|------------|-------------|------|
-| Composer 2.5 | $0.50 | $2.50 | First-party |
-| Grok 4.5 | $2.00 | $6.00 | First-party |
-| E2E local sem IA | $0 | $0 | — |
+| Modelo | Input / 1M | Cache read / 1M | Output / 1M | Pool |
+|--------|------------|-----------------|-------------|------|
+| Composer 2.5 | $0.50 | $0.20 | $2.50 | First-party |
+| Grok 4.5 | $2.00 | $0.50 | $6.00 | First-party |
+| GPT-5.4 Nano | $0.20 | $0.02 | $1.25 | API |
+| E2E local sem IA | $0 | — | $0 | — |
 
-Refs: https://cursor.com/docs/models-and-pricing · https://cursor.com/dashboard
+Refs: https://cursor.com/docs/models-and-pricing · canvas `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` (repo skills) · https://cursor.com/dashboard
 
-### Burn estimado por fatia (feature-loop completo)
+### Cenário A — recomendado (Grok + Composer, First-party)
 | Fatia | Plan (Grok) | Impl (Composer) | Review (Grok) | E2E | **Total $** |
 |-------|-------------|-----------------|---------------|-----|-------------|
 | **MVP-A** | $… | $… | $… | $0 | **~$…** |
@@ -24,25 +29,38 @@ Refs: https://cursor.com/docs/models-and-pricing · https://cursor.com/dashboard
 | **MVP-C** | $… | $… | $… | $0 | **~$…** |
 | **A→…** | | | | | **~$…** |
 
+### Cenário B — comparativo (impl em GPT-5.4 Nano, API)
+Mesmo plan/review em Grok; só a coluna **Impl** escalada (~0,47× do $ Composer da mesma fatia). **Não usar como pipeline de entrega.**
+
+| Fatia | Plan (Grok) | Impl (Nano) | Review (Grok) | E2E | **Total $** | Pool do impl |
+|-------|-------------|-------------|---------------|-----|-------------|--------------|
+| **MVP-A** | $… | $… | $… | $0 | **~$…** | API |
+| **MVP-B** | $… | $… | $… | $0 | **~$…** | API |
+| **MVP-C** | $… | $… | $… | $0 | **~$…** | API |
+| **A→…** | | | | | **~$…** | |
+
 ### % do plano Cursor
-| Referência | MVP-A | Programa (A→…) |
-|------------|-------|----------------|
-| Pool **API** (Pro $20 / Pro+ $70 / Ultra $400) | **~0%** | **~0%** (até First-party acabar) |
-| Spillover no **Pro ($20)** | ~…% | … |
-| Spillover no **Pro+ ($70)** | ~…% | … |
-| Spillover no **Ultra ($400)** | ~…% | … |
-| % **First-party** (chute) | ~…% | ~…% |
+| Referência | MVP-A (A) | Programa A→… (A) | MVP-A (B Nano impl) | Programa (B) |
+|------------|-----------|------------------|---------------------|--------------|
+| Pool **API** — Cenário A | **~0%** | **~0%** (até First-party acabar) | — | — |
+| Pool **API** — Cenário B (só $ de Impl Nano) | — | — | ~…% de $20/$70/$400 | ~…% |
+| Spillover no **Pro ($20)** se First-party acabar (A) | ~…% | … | — | — |
+| Spillover no **Pro+ ($70)** (A) | ~…% | … | — | — |
+| Spillover no **Ultra ($400)** (A) | ~…% | … | — | — |
+| % **First-party** (chute, A) | ~…% | ~…% | Grok só | Grok só |
 
 ### Como ler
-1. Melhor caso (First-party ok): programa ≈ 0% API + fração do First-party.
-2. Pior caso (spillover): usar coluna $ total vs included API do plano.
-3. E2E sem IA não consome modelo; escrever e2e consome Composer.
+1. Entregar pelo **Cenário A**. Cenário B é só para comparar preço de API barata.
+2. Melhor caso A (First-party ok): programa ≈ 0% API + fração do First-party.
+3. Cenário B: cada $ de Impl Nano come o included API do plano.
+4. E2E sem IA não consome modelo; escrever e2e consome Composer (A) ou Nano (B).
+5. Nano ≠ modelo principal de agente — ver canvas / user rule.
 
 ---
 
 ## Tempo em Cloud Agent (rodando direto)
 
-Wall-clock do agent **entre** gates humanos do `/feature-loop`.
+Wall-clock do agent **entre** gates humanos do `/feature-loop` (assume Cenário A / Composer na impl).
 
 | Fatia | Tempo agent contínuo | Calendário c/ gates | Notas |
 |-------|----------------------|---------------------|-------|
@@ -52,20 +70,21 @@ Wall-clock do agent **entre** gates humanos do `/feature-loop`.
 | **A→…** | ~… h | ~… dias | |
 
 ### Breakdown típico por feature-loop
-| Fase | Cloud Agent |
-|------|-------------|
-| Decisões em lote (Grok) | ~20–45 min (ajustar) |
-| *Gate humano* | pausa |
-| TDD + impl (Composer) | … |
-| Review (Grok) + correções | … |
-| Suite local + escrever e2e | … |
-| Rodar e2e (sem IA) | … |
-| Caminho feliz manual | humano; fora do agent |
+| Fase | Modelo (pedir troca se preciso) | Cloud Agent |
+|------|---------------------------------|-------------|
+| Decisões em lote | Grok 4.5 High | ~20–45 min (ajustar) |
+| *Gate humano* | — | pausa |
+| TDD + impl | Composer 2.5 | … |
+| Review + correções | Grok 4.5 High | … |
+| Suite local + escrever e2e | Composer 2.5 | … |
+| Rodar e2e (sem IA) | — | … |
+| Caminho feliz manual | humano | fora do agent |
 
 ### Como ler
 1. “Direto” ≠ calendário completo — gates humanos pausam.
 2. Mesma assinatura de erro 2× → parar (regra feature-loop).
 3. Cloud Agent concentra o burn First-party; não zera custo.
+4. Se o chat estiver no modelo errado: *“Troque o modelo para **&lt;modelo&gt;** e confirme para eu continuar.”*
 
 ---
 
@@ -74,10 +93,11 @@ Wall-clock do agent **entre** gates humanos do `/feature-loop`.
 **Âncora:** <por que importa>
 
 **Tipo de trabalho:** **não é spike.** Programa de **MVPs em fatias verticais** (tracer bullets) com `/feature-loop`.
-- Planejar: Grok 4.5 High
-- Implementar: Composer 2.5
-- Validar código: Grok 4.5 High
+- Planejar: Grok 4.5 High *(pedir troca no picker se a IA não puder)*
+- Implementar: Composer 2.5 *(idem)*
+- Validar código: Grok 4.5 High *(idem)*
 - E2E: testes locais **sem IA** no caminho feliz
+- **Não** usar GPT-5.4 Nano como agente principal (só comparativo de custo acima)
 
 Spike só como fase 0 **curta** se incerteza técnica dura.
 
