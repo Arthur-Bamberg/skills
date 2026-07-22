@@ -32,6 +32,7 @@ Resolver dependências nesta ordem; pule ramos já respondidos no chat/repo:
 ### Preferências do usuário (Arthur)
 - **Destino do doc:** Notion (não perguntar Notion vs local; assumir Notion).
 - **Página pai default:** `Ideias de Projetos` (dentro de `Personal`) — id `1a7169fd-ba57-80cb-91cd-e0aa00be4a12` · URL https://app.notion.com/p/1a7169fdba5780cb91cde0aa00be4a12 — só perguntar se o usuário indicar outro lugar.
+- **Identidade (site/portfólio):** sempre **Arthur Bamberg** + empresa **A Bamberg Desenvolvimento de Software** (Canoas/RS; CNPJ 63.801.318/0001-91; tel. (51) 9978-4248) — pessoa e empresa juntos.
 
 Não pergunte preços de modelo nem estrutura do template — isso é fixo.
 
