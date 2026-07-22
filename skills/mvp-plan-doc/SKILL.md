@@ -47,6 +47,12 @@ Não pergunte preços de modelo nem estrutura do template — isso é fixo.
 
 Tipo de trabalho: **MVPs em fatias verticais (tracer bullets)**. Spike só como fase 0 curta se houver incerteza técnica dura.
 
+### Direcionamento de modelo (pedir troca)
+
+A skill **não troca o modelo sozinho**. No doc e no chat, deixe explícito o modelo de cada fase. Se o chat estiver no modelo errado (ou a IA não puder trocar), **peça ao usuário** trocar no picker e confirmar antes de seguir — mesmo padrão do `/feature-loop`.
+
+**Não recomende GPT-5.4 Nano** como modelo principal de agente/implementação (só subtarefas estreitas). Use Nano apenas no **cenário de custo comparativo** do doc.
+
 ## Depois do grill — escrever o documento
 
 1. Propor **3–5 fatias** (A, B, C…) ordenadas por valor da âncora ÷ esforço.
@@ -62,20 +68,38 @@ Tipo de trabalho: **MVPs em fatias verticais (tracer bullets)**. Spike só como 
 
 ### Custo Cursor
 
-- Composer 2.5 + Grok 4.5 → pool **First-party** (não API), até o First-party acabar.
-- Enquanto First-party ok: **~0% do pool API** ($20 / $70 / $400).
-- Publicar burn em **$** (confiável) e **%** (chute no First-party; API só no cenário de spillover).
-- E2E sem IA = $0 de modelo; escrever e2e consome Composer.
-- Taxas de referência (atualizar se docs Cursor mudarem): Composer 2.5 `$0.50` in / `$2.50` out por 1M; Grok 4.5 `$2` in / `$6` out por 1M. Links: https://cursor.com/docs/models-and-pricing
+Sempre publicar **dois cenários** no topo do doc (template):
 
-Faixas default de burn (feature-loop completo):
+1. **Recomendado (First-party):** Grok 4.5 + Composer 2.5 — pool próprio; ~0% API enquanto First-party aguentar.
+2. **Comparativo GPT-5.4 Nano (API):** mesma fatia se a **impl** rodasse em Nano — tarifa menor, mas consome pool **API** e **não** é o pipeline recomendado.
 
-| Porte da fatia | $ total |
-|----------------|---------|
-| Pequena (tipo “abrir app + confirmar”) | ~$5–15 |
-| Média (tela/OCR, ditado+send) | ~$15–40 |
-| Grande (navegar UI / agente rico) | ~$40–80+ |
-| Soma 3 fatias P+M+M | ~$35–95 |
+Dados de referência (repo `Arthur-Bamberg/skills`, canvas `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` + [pricing Cursor](https://cursor.com/docs/models-and-pricing)):
+
+| Modelo | Input / 1M | Cache read / 1M | Output / 1M | Pool |
+|--------|------------|-----------------|-------------|------|
+| Composer 2.5 Standard | $0.50 | $0.20 | $2.50 | First-party |
+| Grok 4.5 | $2.00 | $0.50 | $6.00 | First-party |
+| GPT-5.4 Nano | $0.20 | $0.02 | $1.25 | API |
+| E2E local sem IA | $0 | — | $0 | — |
+
+Heurística de conversão **Impl Composer → Impl Nano** (mesmo volume de tokens, blend ~70% in / 30% out):
+
+- Composer blended ≈ **$1.10 / 1M**; Nano blended ≈ **$0.52 / 1M** → Nano ≈ **~0,47×** o $ de impl Composer.
+- Plan + Review continuam em Grok (First-party) nos dois cenários, salvo o usuário pedir “tudo Nano” (desencorajado).
+- Terminal-Bench 2.0: Composer **69.3%** vs Nano **46.3%** (~−23 pts) — por isso Nano só entra como **linha de custo**, não como recomendação de entrega.
+
+Publicar burn em **$** (confiável) e **%** (chute no First-party; API no cenário Nano / spillover).
+
+Faixas default de burn — cenário **recomendado** (feature-loop completo):
+
+| Porte da fatia | $ total (Grok+Composer) | Impl só em Nano (estim.) | Programa se impl=Nano* |
+|----------------|-------------------------|--------------------------|------------------------|
+| Pequena | ~$5–15 | ~$2–7 | ~$4–12 |
+| Média | ~$15–40 | ~$7–19 | ~$12–32 |
+| Grande | ~$40–80+ | ~$19–38 | ~$32–65 |
+| Soma 3 fatias P+M+M | ~$35–95 | — | ~$28–76 |
+
+\*Plan+Review ainda em Grok; só a coluna de impl foi escalada por ~0,47×. No cenário Nano, o $ de impl conta no **pool API** (Pro $20 / Pro+ $70 / Ultra $400), não no First-party.
 
 ### Tempo Cloud Agent (rodando direto)
 
@@ -99,7 +123,8 @@ Lembrar: confirmação humana pausa o “direto”; não deixar agent na mesma a
 
 ## Checklist antes de entregar
 
-- [ ] Custo Cursor no **início** do doc
+- [ ] Custo Cursor no **início** do doc (**dois** cenários: First-party + Nano comparativo)
+- [ ] Direcionamento de modelo explícito (pedir troca no picker se a IA não puder)
 - [ ] Tempo Cloud Agent no início (após custo)
 - [ ] Fatias A… numeradas com valor/esforço/risco/e2e
 - [ ] Ordem recomendada + critérios de sucesso da fatia A
