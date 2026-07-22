@@ -80,6 +80,11 @@ fi
 
 git add -A agents-skills cursor-agents cursor-hooks owned-agents-skills.txt README.md .cursor/rules/
 
+# Stage remoção de cursor-skills/ legado ainda rastreado no git
+if git ls-files --error-unmatch cursor-skills >/dev/null 2>&1; then
+  git rm -rf cursor-skills >/dev/null 2>&1 || true
+fi
+
 if git diff --cached --quiet; then
   log "noop: no skill/hook/agent changes"
   exit 0
