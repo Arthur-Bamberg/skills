@@ -1,44 +1,20 @@
 ---
 name: feature-loop
-description: Pipeline completo de feature — decisões em lote (Grok 4.5 High), confirmação, TDD+impl (Composer 2.5), review (Grok 4.5 High), suite local, e2e sem LLM real e caminho feliz. Use quando o usuário pedir feature-loop, /feature-loop, ou o fluxo decisões→TDD→review→e2e.
+description: Pipeline completo de feature — decisões em lote (lista em markdown com opções + recomendação, depois revisão global), confirmação, TDD unitário, implementação, review, testes locais, e2e e guia do caminho feliz. Use quando o usuário pedir feature-loop, /feature-loop, ou o fluxo decisões→TDD→review→e2e.
 disable-model-invocation: true
 ---
 
 # Feature Loop
 
-Pipeline sequencial para entregar uma **fatia vertical de MVP** (tracer bullet) com decisões documentadas, TDD e verificação ponta a ponta.
+Pipeline sequencial para entregar uma feature com decisões documentadas, TDD e verificação ponta a ponta.
 
-**Não** use o modo entrevista uma-a-uma do `grill-with-docs` / `grill-me`. Aqui o grill é em lote: pensar → listar em markdown → repensar o conjunto → confirmar.
-
-Para **planejar o programa de MVPs** (várias fatias, custo Cursor, tempo Cloud Agent), use a skill `mvp-plan-doc` antes; este loop entrega **uma** fatia por vez.
+**Não** use o modo entrevista uma-a-uma do `grill-with-docs`. Aqui o grill é em lote: pensar → listar em markdown → repensar o conjunto → confirmar.
 
 Skills / refs (ler quando a fase exigir):
 
 - Domínio / formatos: `~/.agents/skills/grill-with-docs/` (`CONTEXT-FORMAT.md`, `ADR-FORMAT.md`)
 - `tdd` — `~/.agents/skills/tdd/SKILL.md`
 - `review` — `~/.agents/skills/review/SKILL.md`
-- Plano multi-fatia: `~/.cursor/skills/mvp-plan-doc/SKILL.md`
-
-## Política de modelos (obrigatória)
-
-O Cursor **não troca o modelo sozinho** via rule/skill. Em cada fase:
-
-| Fase | Modelo preferido | Ação do agent |
-|------|------------------|---------------|
-| 0–2 Decisões + confirmação | **Grok 4.5 High** | Se a sessão não estiver nele, **peça ao usuário trocar** (ou lance subagent com esse modelo se o usuário autorizar) antes de escrever `decisions.md` |
-| 3 Impl TDD | **Composer 2.5** | Pedir troca / subagent Composer antes de codar |
-| 4 Review | **Grok 4.5 High** | Pedir troca de volta para Grok High |
-| 5 Suite local | qualquer (comandos shell) | Sem burn de LLM além de correções |
-| 6 E2E | **sem LLM real no runtime do teste** | Escrever e2e com Composer; testes usam stubs/fixtures; assert sem chamar API de modelo |
-| 7 Manual | humano | Só instruções |
-
-Prefira pool **First-party** (Composer / Grok). Não use modelos API caros salvo pedido explícito.
-
-No início da Fase 0 e a cada troca de fase que mude o modelo, diga em 1 linha: `Modelo desta fase: <nome> — troque no picker se ainda não estiver.`
-
-## Âncora (quando o trabalho for de acessibilidade / agente de desktop)
-
-Respeite a User Rule: priorize o que amplia acesso para pessoa deficiente visual (voz/TTS, confirmação falada, ações irreversíveis só com confirm). Isso pode alterar recomendações em `decisions.md`.
 
 ## Regras transversais
 
@@ -75,21 +51,13 @@ Fases válidas: `decisions`, `unit`, `impl`, `review`, `local`, `e2e`, `outro` (
 
 ## Fase 0 — Escopo
 
-**Modelo:** Grok 4.5 High.
-
 Confirme em uma frase o que será construído e em qual repo/pasta. Se o workspace não for o projeto certo, mova o agent para a raiz do projeto antes de editar código.
 
-Defina um slug curto da feature (ex.: `abrir-e-confirmar`) para os markdowns.
-
-Se existir doc de MVPs (Notion / `mvp-plan-doc`), alinhe a fatia ao ID (MVP-A, MVP-B…). Não misture várias fatias num único loop.
-
-Tipo: isto é **entrega de fatia**, não spike. Spike só se a fatia bloquear em incerteza técnica dura — time-box e volte ao loop.
+Defina um slug curto da feature (ex.: `checkout-parcial`) para os markdowns.
 
 ---
 
 ## Fase 1 — Decisões em lote (pensar → anotar → repensar)
-
-**Modelo:** Grok 4.5 High.
 
 **Proibido:** perguntar uma decisão por vez e esperar resposta entre elas.
 
@@ -100,7 +68,6 @@ Antes de decidir, explore o que já existe:
 - Código relevante
 - `CONTEXT.md` / `CONTEXT-MAP.md`
 - `docs/adr/` (e ADRs por contexto, se houver)
-- Doc de MVPs da feature, se houver
 
 Se um fato estiver no código ou nos docs, use-o — não invente pergunta ociosa.
 
@@ -141,7 +108,6 @@ Regras da lista:
 - Opções reais, não falsas dicotomias.
 - Sempre um **Recomendado** com motivo curto.
 - Vocabulário alinhado ao `CONTEXT.md`; se houver conflito de termo, resolva na lista (recomendando o canônico).
-- Inclua ramos de **confirmação antes de ação irreversível** e **feedback acessível** (voz/TTS) quando a fatia agir no SO ou enviar dados.
 
 Ainda **não** peça confirmação do usuário neste passo.
 
@@ -174,8 +140,6 @@ Opcional (lazy, só se couber):
 
 ## Fase 2 — Confirmação
 
-**Modelo:** Grok 4.5 High.
-
 Mostre o conteúdo consolidado de `decisions.md` (ou um resumo + caminho do arquivo) e peça confirmação explícita.
 
 Template de fechamento no chat:
@@ -190,7 +154,6 @@ Template de fechamento no chat:
 ## Escopo da implementação
 - Comportamentos a cobrir (unit): …
 - Fora de escopo: …
-- Modelo na próxima fase: Composer 2.5 (trocar no picker)
 ```
 
 **Pare aqui** até o usuário confirmar ou ajustar. Aplique overrides no `decisions.md` (`Status: confirmado` / `Status: override — …`).
@@ -201,23 +164,18 @@ Só então vá para a Fase 3. A implementação segue as recomendações confirm
 
 ## Fase 3 — TDD unitário → implementação
 
-**Modelo:** Composer 2.5. Peça a troca antes de editar código.
-
 Siga `tdd`:
 
 1. Planeje comportamentos e interface pública; alinhe com `CONTEXT.md` / ADRs / `decisions.md`.
 2. **Vertical slices**: um teste → implementação mínima → próximo. Proibido escrever todos os testes e depois toda a impl.
 3. RED → GREEN; refactor só em GREEN.
 4. Testes de comportamento via interface pública (não detalhes internos).
-5. Separe portas que chamariam LLM/STT/TTS atrás de interfaces stubáveis (o e2e da Fase 6 não deve bater em API real).
 
 Aplique o **loop de correção** se um teste ou implementação emperrar no mesmo erro.
 
 ---
 
 ## Fase 4 — Revisão de código
-
-**Modelo:** Grok 4.5 High. Peça a troca antes do review.
 
 Revise o diff da feature (base combinada com o usuário, default `main`):
 
@@ -242,14 +200,9 @@ Corrija falhas com o **loop de correção**. Só avance com suite local verde.
 
 ## Fase 6 — Testes e2e
 
-**Escrever** e2e: Composer 2.5 se ainda estiver editando. **Rodar** e2e: sem IA.
-
-Regras:
-
 1. Descubra a stack e2e do repo (Playwright, Cypress, etc.) e os padrões existentes.
 2. Cubra o **caminho feliz** da feature acordada (e só edge cases críticos se já fizerem parte do escopo).
-3. E2E **não** chama LLM/STT/TTS reais — use stubs, fixtures, doubles; assert em efeitos observáveis (processo, DOM, arquivo, log).
-4. Escreva e rode os e2e; corrija com o **loop de correção**.
+3. Escreva e rode os e2e; corrija com o **loop de correção**.
 
 Se o projeto não tiver e2e: proponha o mínimo viável no padrão mais próximo do repo, confirme com o usuário, então implemente.
 
@@ -257,7 +210,7 @@ Se o projeto não tiver e2e: proponha o mínimo viável no padrão mais próximo
 
 ## Fase 7 — Caminho feliz manual
 
-Explique o passo a passo para o usuário validar na mão (usuário-alvo real ou proxy):
+Explique o passo a passo para o usuário validar na mão:
 
 ```markdown
 ## Caminho feliz (manual)
@@ -271,7 +224,7 @@ Pré-requisitos: …
 Resultado esperado: …
 ```
 
-Seja concreto (URLs, comandos, dados de exemplo). Um caminho feliz claro. Se a fatia for de acessibilidade, inclua o fluxo por voz/sem olhar a tela.
+Seja concreto (URLs, comandos, dados de exemplo). Um caminho feliz claro.
 
 ---
 
@@ -279,10 +232,10 @@ Seja concreto (URLs, comandos, dados de exemplo). Um caminho feliz claro. Se a f
 
 Ao concluir (ou ao parar por erro repetido), entregue nesta ordem:
 
-1. Status do pipeline (qual fase terminou / onde parou) + modelos usados por fase.
+1. Status do pipeline (qual fase terminou / onde parou).
 2. Caminho de `decisions.md` (se existir).
 3. Tabela de bugs (diário).
 4. Caminho feliz manual (se chegou na Fase 7).
-5. Próximo passo sugerido só se bloqueado (ex.: próxima fatia MVP-B).
+5. Próximo passo sugerido só se bloqueado.
 
 Não faça commit/PR a menos que o usuário peça.

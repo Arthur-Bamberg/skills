@@ -1,96 +1,76 @@
 # cursor-skills
 
-Backup privado das **configs pessoais** do Cursor: skills, custom agents e hooks.
+Backup privado das configs **pessoais** do Cursor.
 
-Só entra o que é seu. Skills de terceiros (Matt Pocock, caveman, find-skills, etc.) podem continuar em `~/.agents/skills`, mas **não** são versionadas aqui.
+Só o que é seu. Skills de terceiros em `~/.agents/skills` podem ficar instaladas localmente, mas **não** entram neste repo.
 
-Branch padrão: **main** (sem `master`).
+Branch padrão: **main**.
 
-## Estrutura
+## Conteúdo
 
-| Pasta / arquivo | Origem local | Uso |
-|-----------------|--------------|-----|
-| `cursor-skills/` | `~/.cursor/skills/` | Skills pessoais do Cursor |
-| `cursor-agents/` | `~/.cursor/agents/` | Custom agents do Cursor |
-| `agents-skills/` | `~/.agents/skills/<nome>` | Só agents skills listadas em `owned-agents-skills.txt` |
-| `owned-agents-skills.txt` | — | Whitelist das agents skills pessoais |
-| `cursor-user-rules.md` | Settings → Rules → User Rules | Backup manual das User Rules (sem sync automático) |
-| `cursor-hooks/hooks.json` | `~/.cursor/hooks.json` | Config dos hooks de usuário |
-| `cursor-hooks/hooks/` | `~/.cursor/hooks/` | Scripts dos hooks |
+| Path | Origem | Sync |
+|------|--------|------|
+| `cursor-skills/` | `~/.cursor/skills/` | automático |
+| `cursor-agents/` | `~/.cursor/agents/` | automático |
+| `agents-skills/` | `~/.agents/skills/<nome>` (whitelist) | automático |
+| `owned-agents-skills.txt` | — | — |
+| `cursor-hooks/` | `~/.cursor/hooks.json` + `~/.cursor/hooks/` | automático |
+| `cursor-user-rules.md` | Settings → Rules → User Rules | **manual** |
 
-### Cursor skills (pessoais)
+### Inventário
 
-Tudo em `~/.cursor/skills/` é sincronizado.
+**Skills** (`cursor-skills/`): `commit-push`, `envs`, `mvp-plan-doc`, `pr-dev`, `slack-grill-ship`
 
-### Custom agents (pessoais)
+**Agents** (`cursor-agents/`): `code-reviewer`, `plano-de-testes`
 
-Tudo em `~/.cursor/agents/` é sincronizado (`code-reviewer`, `plano-de-testes`, …).
+**Agents skills** (`agents-skills/`, via whitelist): `feature-loop`
 
-### Agents skills (pessoais)
+**User Rules**: backup em `cursor-user-rules.md` (colar no Settings para restaurar)
 
-Só as linhas de `owned-agents-skills.txt` entram no repo. Para versionar uma skill nova em `~/.agents/skills/`:
+### Fora do backup
 
-1. Adicione o nome da pasta em `owned-agents-skills.txt`
-2. Rode o sync manual (ou edite a skill e espere o hook)
+- `~/.cursor/skills-cursor/` — gerenciado pelo Cursor
+- `~/.cursor/mcp.json` — secrets
+- Skills de terceiros em `~/.agents/skills` — só entram nomes listados em `owned-agents-skills.txt`
 
-### User Rules (manuais)
-
-As User Rules do Cursor **não** vivem em arquivo em `~/.cursor/` (ficam no Settings / cloud). O backup é `cursor-user-rules.md` — restore = colar no Settings. Sem sync automático: ao mudar a rule no Cursor, atualize o arquivo no repo.
-
-## Restaurar em outra máquina
+## Restaurar
 
 ```bash
-# Cursor skills (pessoais)
-mkdir -p ~/.cursor/skills
+mkdir -p ~/.cursor/skills ~/.cursor/agents ~/.agents/skills ~/.cursor/hooks
+
 cp -a cursor-skills/. ~/.cursor/skills/
-
-# Custom agents
-mkdir -p ~/.cursor/agents
 cp -a cursor-agents/. ~/.cursor/agents/
-
-# Agents skills (só as suas)
-mkdir -p ~/.agents/skills
 cp -a agents-skills/. ~/.agents/skills/
-
-# Hooks
-mkdir -p ~/.cursor/hooks
 cp -a cursor-hooks/hooks.json ~/.cursor/hooks.json
 cp -a cursor-hooks/hooks/. ~/.cursor/hooks/
 chmod +x ~/.cursor/hooks/*.sh
-
-# User Rules (manual)
-# Abra Cursor Settings → Rules → User Rules e cole o bloco de
-# cursor-user-rules.md (ver instruções no próprio arquivo).
 ```
+
+User Rules: abra **Settings → Rules → User Rules** e cole o bloco de `cursor-user-rules.md`.
 
 ## Sync automático
 
-Um hook de usuário (`~/.cursor/hooks.json` → `afterFileEdit`) sincroniza este repo quando o Agent edita:
+Hook `afterFileEdit` em `~/.cursor/hooks.json`:
 
-- `~/.cursor/skills/` (qualquer skill pessoal)
-- `~/.cursor/agents/` (qualquer custom agent)
-- `~/.agents/skills/<owned>/` (só whitelist)
-- `~/.cursor/hooks/`
-- `~/.cursor/hooks.json`
-
-Fluxo: debounce ~4s → `rsync`/`cp` → `git commit` → `git push`.
-
-Scripts:
-
-- `~/.cursor/hooks/sync-skills-on-edit.sh` — disparado pelo hook
-- `~/.cursor/hooks/sync-skills-to-backup.sh` — sync manual / usado pelo hook
+1. Detecta edição em skills / agents / hooks (agents skills só se estiverem na whitelist)
+2. Debounce ~4s
+3. `rsync` → `git commit` → `git push`
 
 ```bash
-# sync manual (commit + push)
+# sync manual
 ~/.cursor/hooks/sync-skills-to-backup.sh
 ```
 
 Log: `${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync/sync.log`
 
-Se algo for criado só via shell (`mkdir`/`cp` sem Write/StrReplace), o hook não dispara — rode o sync manual.
+Criação só via shell (`mkdir`/`cp` sem Write/StrReplace) **não** dispara o hook — rode o sync manual.
 
-Não versionar `~/.cursor/skills-cursor/` — essa pasta é gerenciada pelo Cursor.
+### Nova agents skill pessoal
 
-Não versionar `~/.cursor/mcp.json` — costuma conter secrets.
+1. Crie em `~/.agents/skills/<nome>/`
+2. Adicione `<nome>` em `owned-agents-skills.txt`
+3. Rode o sync manual (ou edite a skill e espere o hook)
 
-User Rules não entram no sync automático — veja `cursor-user-rules.md`.
+### User Rules
+
+Sem sync automático. Ao mudar no Settings, atualize `cursor-user-rules.md` no repo.
