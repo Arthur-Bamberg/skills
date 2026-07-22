@@ -1,0 +1,37 @@
+---
+description: Mantém o README.md alinhado com o inventário real do repo após qualquer alteração.
+alwaysApply: true
+---
+
+# README sempre atualizado
+
+Em **toda** alteração neste repo, antes de considerar a tarefa concluída, atualize `README.md` se o inventário ou o comportamento mudou.
+
+## Quando atualizar
+
+- Skill adicionada/renomeada/removida em `cursor-skills/`
+- Agent adicionado/renomeado/removido em `cursor-agents/`
+- Agents skill na whitelist (`agents-skills/` + `owned-agents-skills.txt`)
+- Hook ou `hooks.json` mudou de forma que afete restore/sync
+- User Rules (`cursor-user-rules.md`) — conferir seção de inventário/restore
+- Pasta/arquivo novo no backup, ou path de origem/sync alterado
+
+## O que manter correto no README
+
+1. Tabela **Conteúdo** (paths, origens, sync auto vs manual)
+2. **Inventário** — listas reais, sem itens fantasma nem omitidos
+3. **Fora do backup** — se a política mudou
+4. **Restaurar** / **Sync** — se comandos ou fluxo mudaram
+
+## Como conferir
+
+Liste o disco e compare com o README:
+
+```bash
+ls cursor-skills/
+ls cursor-agents/
+ls agents-skills/
+grep -vE '^\s*(#|$)' owned-agents-skills.txt
+```
+
+Não deixe o inventário desatualizado “para depois”.

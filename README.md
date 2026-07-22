@@ -16,6 +16,7 @@ Branch padrão: **main**.
 | `owned-agents-skills.txt` | — | — |
 | `cursor-hooks/` | `~/.cursor/hooks.json` + `~/.cursor/hooks/` | automático |
 | `cursor-user-rules.md` | Settings → Rules → User Rules | **manual** |
+| `.cursor/rules/` | — | rule do repo (sempre aplicar) |
 
 ### Inventário
 
@@ -26,6 +27,9 @@ Branch padrão: **main**.
 **Agents skills** (`agents-skills/`, via whitelist): `feature-loop`
 
 **User Rules**: backup em `cursor-user-rules.md` (colar no Settings para restaurar)
+  - Preferência de modelos (feature-loop): plano/review → Grok 4.5 High; impl TDD → Composer 2.5; e2e → sem LLM real; preferir pool First-party
+
+**Rules do repo** (`.cursor/rules/`): `keep-readme-updated` — inventário do README atualizado em toda alteração
 
 ### Fora do backup
 
