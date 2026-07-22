@@ -26,8 +26,12 @@ Resolver dependências nesta ordem; pule ramos já respondidos no chat/repo:
 2. **Âncora** — por que importa (pessoal/negócio); pesa o ranking das fatias.
 3. **Usuário do 1º demo** — dono real vs proxy.
 4. **Plataforma do 1º MVP** — OS/device alvo.
-5. **Destino do doc** — Notion (página pai URL/ID) vs markdown local (caminho).
+5. **Destino do doc** — **default: Notion** (pedir só URL/ID da página pai se não houver default abaixo). Markdown local só se o usuário pedir explicitamente.
 6. Só se ainda ambíguo: **quantas fatias** (default 3–5) e se confirma pipeline padrão abaixo.
+
+### Preferências do usuário (Arthur)
+- **Destino do doc:** Notion (não perguntar Notion vs local; assumir Notion).
+- **Página pai default:** `Ideias de Projetos` (dentro de `Personal`) — id `1a7169fd-ba57-80cb-91cd-e0aa00be4a12` · URL https://app.notion.com/p/1a7169fdba5780cb91cde0aa00be4a12 — só perguntar se o usuário indicar outro lugar.
 
 Não pergunte preços de modelo nem estrutura do template — isso é fixo.
 
