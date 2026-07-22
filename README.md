@@ -1,76 +1,100 @@
 # cursor-skills
 
-Backup privado das configs **pessoais** do Cursor.
+Backup privado de **skills e configs de agentes de IA** — compatível com [OpenCode](https://opencode.ai/docs/skills/), Cursor, Claude Code e outras ferramentas que leem o formato `SKILL.md`.
 
-Só o que é seu. Skills de terceiros em `~/.agents/skills` podem ficar instaladas localmente, mas **não** entram neste repo.
+Só o que é seu. Skills de terceiros podem ficar instaladas localmente, mas **não** entram neste repo.
 
 Branch padrão: **main**.
 
-## Conteúdo
+## Layout (padrão OpenCode / agent-skills)
 
-| Path | Origem | Sync |
-|------|--------|------|
-| `agents-skills/` | `~/.agents/skills/<nome>` (whitelist) | automático |
-| `owned-agents-skills.txt` | — | — |
-| `cursor-agents/` | `~/.cursor/agents/` | automático |
-| `cursor-hooks/` | `~/.cursor/hooks.json` + `~/.cursor/hooks/` | automático |
-| `cursor-user-rules.md` | Settings → Rules → User Rules | **manual** |
-| `.cursor/rules/` | — | rule do repo (sempre aplicar) |
+| Path no repo | Origem global | Sync |
+|--------------|---------------|------|
+| `skills/` | `~/.agents/skills/<nome>` (whitelist) | automático |
+| `owned-skills.txt` | — | — |
+| `agents/` | definições de subagent (ex. `~/.cursor/agents/`) | automático |
+| `hooks/` | hooks da ferramenta (ex. `~/.cursor/hooks.json` + scripts) | automático |
+| `user-rules.md` | regras globais do assistente | **manual** |
+| `.cursor/rules/` | regras deste repo | — |
+
+### Paths globais (OpenCode)
+
+Ferramentas compatíveis carregam skills de:
+
+| Escopo | Path |
+|--------|------|
+| Global (agent-skills) | `~/.agents/skills/<nome>/SKILL.md` |
+| Global (OpenCode nativo) | `~/.config/opencode/skills/<nome>/SKILL.md` |
+| Projeto | `.agents/skills/`, `.opencode/skills/`, `.claude/skills/` |
+
+Este repo faz backup da whitelist em `~/.agents/skills` e **espelha** opcionalmente em `~/.config/opencode/skills` durante o sync.
 
 ### Inventário
 
-**Agents skills** (`agents-skills/`, via whitelist): `commit-push`, `envs`, `feature-loop`, `plan-feature-loop`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`, `slack-grill-ship`
+**Skills** (`skills/`, via `owned-skills.txt`): `commit-push`, `envs`, `feature-loop`, `plan-feature-loop`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`, `slack-grill-ship`
 
-**Agents** (`cursor-agents/`): `code-reviewer`, `plano-de-testes`
+**Agents** (`agents/`): `code-reviewer`, `plano-de-testes`
 
-**User Rules**: backup em `cursor-user-rules.md` (colar no Settings para restaurar)
-  - Preferência de modelos (feature-loop): plano/review → Grok 4.5 High; impl TDD → Composer 2.5; e2e → sem LLM real; preferir pool First-party
+**User rules** (`user-rules.md`): preferências de modelo do feature-loop (restaurar manualmente na ferramenta)
 
-**Rules do repo** (`.cursor/rules/`): `keep-readme-updated` — inventário do README atualizado em toda alteração
+**Rules do repo** (`.cursor/rules/`): `keep-readme-updated`
 
 ### Fora do backup
 
-- `~/.cursor/skills-cursor/` — gerenciado pelo Cursor
-- `~/.cursor/mcp.json` — secrets
-- Skills de terceiros em `~/.agents/skills` — só entram nomes listados em `owned-agents-skills.txt`
+- Skills de terceiros — só entram nomes em `owned-skills.txt`
+- Secrets (MCP, API keys, etc.)
+- Skills internas gerenciadas pela ferramenta (ex. `~/.cursor/skills-cursor/` no Cursor)
 
 ## Restaurar
 
 ```bash
-mkdir -p ~/.cursor/agents ~/.agents/skills ~/.cursor/hooks
+mkdir -p ~/.agents/skills ~/.config/opencode/skills ~/.cursor/agents ~/.cursor/hooks
 
-cp -a agents-skills/. ~/.agents/skills/
-cp -a cursor-agents/. ~/.cursor/agents/
-cp -a cursor-hooks/hooks.json ~/.cursor/hooks.json
-cp -a cursor-hooks/hooks/. ~/.cursor/hooks/
+cp -a skills/. ~/.agents/skills/
+cp -a skills/. ~/.config/opencode/skills/   # opcional, OpenCode nativo
+cp -a agents/. ~/.cursor/agents/              # se usar Cursor
+cp -a hooks/hooks.json ~/.cursor/hooks.json   # se usar Cursor
+cp -a hooks/hooks/. ~/.cursor/hooks/
 chmod +x ~/.cursor/hooks/*.sh
 ```
 
-User Rules: abra **Settings → Rules → User Rules** e cole o bloco de `cursor-user-rules.md`.
+User rules: cole `user-rules.md` nas User Rules da sua ferramenta.
 
 ## Sync automático
 
-Hook `afterFileEdit` em `~/.cursor/hooks.json`:
+Com **Cursor** e hook `afterFileEdit` em `~/.cursor/hooks.json`:
 
-1. Detecta edição em owned skills (`~/.agents/skills/<whitelist>`), agents ou hooks
+1. Detecta edição em skill owned, agent ou hook
 2. Debounce ~4s
 3. `rsync` → `git commit` → `git push`
 
 ```bash
-# sync manual
 ~/.cursor/hooks/sync-skills-to-backup.sh
 ```
 
 Log: `${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync/sync.log`
 
-Criação só via shell (`mkdir`/`cp` sem Write/StrReplace) **não** dispara o hook — rode o sync manual.
+Criação só via shell (`mkdir`/`cp`) **não** dispara o hook — rode o sync manual.
 
-### Nova agents skill pessoal
+### Variáveis de ambiente
 
-1. Crie em `~/.agents/skills/<nome>/`
-2. Adicione `<nome>` em `owned-agents-skills.txt`
-3. Rode o sync manual (ou edite a skill e espere o hook)
+| Variável | Default | Uso |
+|----------|---------|-----|
+| `CURSOR_SKILLS_REPO` | `~/Projects/cursor-skills` | Este repo |
+| `AGENTS_SKILLS_DIR` | `~/.agents/skills` | Skills globais (agent-skills) |
+| `OPENCODE_SKILLS_DIR` | `~/.config/opencode/skills` | Espelho OpenCode (opcional) |
+| `AGENT_DEFINITIONS_DIR` | `~/.cursor/agents` | Subagents (Cursor) |
+| `TOOL_HOOKS_DIR` | `~/.cursor/hooks` | Scripts de hook |
+| `OWNED_SKILLS_LIST` | `$REPO/owned-skills.txt` | Whitelist |
 
-### User Rules
+Aliases legados ainda aceitos: `CURSOR_SKILLS_BACKUP_REPO`, `CURSOR_AGENTS_DIR`, `CURSOR_HOOKS_DIR`, `OWNED_AGENTS_SKILLS_LIST`.
 
-Sem sync automático. Ao mudar no Settings, atualize `cursor-user-rules.md` no repo.
+### Nova skill pessoal
+
+1. Crie em `~/.agents/skills/<nome>/SKILL.md`
+2. Adicione `<nome>` em `owned-skills.txt`
+3. Rode o sync manual (ou edite e espere o hook no Cursor)
+
+### User rules
+
+Sem sync automático. Ao mudar na ferramenta, atualize `user-rules.md`.

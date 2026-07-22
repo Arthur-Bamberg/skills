@@ -9,27 +9,26 @@ Em **toda** alteração neste repo, antes de considerar a tarefa concluída, atu
 
 ## Quando atualizar
 
-- Skill adicionada/renomeada/removida em `agents-skills/` (whitelist em `owned-agents-skills.txt`)
-- Agent adicionado/renomeado/removido em `cursor-agents/`
-- Hook ou `hooks.json` mudou de forma que afete restore/sync
-- User Rules (`cursor-user-rules.md`) — conferir seção de inventário/restore
+- Skill adicionada/renomeada/removida em `skills/` (whitelist em `owned-skills.txt`)
+- Agent adicionado/renomeado/removido em `agents/`
+- Hook ou `hooks/hooks.json` mudou de forma que afete restore/sync
+- User rules (`user-rules.md`) — conferir seção de inventário/restore
 - Pasta/arquivo novo no backup, ou path de origem/sync alterado
 
 ## O que manter correto no README
 
-1. Tabela **Conteúdo** (paths, origens, sync auto vs manual)
+1. Tabela **Layout** (paths, origens, sync auto vs manual)
 2. **Inventário** — listas reais, sem itens fantasma nem omitidos
 3. **Fora do backup** — se a política mudou
 4. **Restaurar** / **Sync** — se comandos ou fluxo mudaram
+5. **Variáveis de ambiente** — se paths globais mudaram
 
 ## Como conferir
 
-Liste o disco e compare com o README:
-
 ```bash
-ls agents-skills/
-ls cursor-agents/
-grep -vE '^\s*(#|$)' owned-agents-skills.txt
+ls skills/
+ls agents/
+grep -vE '^\s*(#|$)' owned-skills.txt
 ```
 
 Não deixe o inventário desatualizado “para depois”.
