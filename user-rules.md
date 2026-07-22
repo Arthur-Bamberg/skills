@@ -19,7 +19,7 @@ Isto é preferência de fluxo — a ferramenta não troca o modelo sozinho via r
 - **E2E caminho feliz:** testes locais sem chamar LLM real (stubs/fixtures)
 - Prefira pool First-party (Composer / Grok) em vez de modelos API caros, salvo necessidade explícita.
 - **Não use GPT-5.4 Nano** como modelo principal de agente ou implementação. Nano só para subtarefas estreitas (classificação, extração, ranking) se o objetivo for minimizar custo de API — perde ~23 pts em Terminal-Bench 2.0 vs Composer 2.5 e consome o pool de API.
-- Comparativo e fontes: `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` neste backup.
+- Comparativo e fontes: `canvases/composer-2-5-vs-gpt-5-4-nano.canvas.tsx` no repo `Arthur-Bamberg/skills`.
 ```
 
 ## Como restaurar

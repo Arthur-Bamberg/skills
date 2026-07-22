@@ -1,6 +1,6 @@
 # Skills pessoais versionadas neste repo (uma por linha).
-# Skills de terceiros em ~/.agents/skills (ou ~/.config/opencode/skills) ficam
-# instaladas localmente, mas NÃO entram no backup.
+# Skills de terceiros nos harnesses locais NÃO entram aqui.
+# Source of truth: skills/<nome>/ neste repo (ver scripts/link-skills.sh).
 commit-push
 envs
 feature-loop

@@ -14,6 +14,8 @@ Em **toda** alteração neste repo, antes de considerar a tarefa concluída, atu
 - Hook ou `hooks/hooks.json` mudou de forma que afete restore/sync
 - User rules (`user-rules.md`) — conferir seção de inventário/restore
 - Pasta/arquivo novo no backup, ou path de origem/sync alterado
+- `AGENTS.md` / `.agents/` / `scripts/` — se o contrato do repo mudou
+- Renomeação do repo ou mudança de source of truth
 
 ## O que manter correto no README
 

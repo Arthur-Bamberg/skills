@@ -5,17 +5,18 @@ set -euo pipefail
 input=$(cat)
 file_path=$(printf '%s' "$input" | jq -r '.file_path // empty')
 
-REPO="${CURSOR_SKILLS_REPO:-${CURSOR_SKILLS_BACKUP_REPO:-$HOME/Projects/cursor-skills}}"
+REPO="${SKILLS_REPO:-${CURSOR_SKILLS_REPO:-${CURSOR_SKILLS_BACKUP_REPO:-$HOME/Projects/skills}}}"
 AGENTS_SKILLS="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 OPENCODE_SKILLS="${OPENCODE_SKILLS_DIR:-$HOME/.config/opencode/skills}"
+CURSOR_SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 AGENT_DEFINITIONS="${AGENT_DEFINITIONS_DIR:-${CURSOR_AGENTS_DIR:-$HOME/.cursor/agents}}"
 TOOL_HOOKS_DIR="${TOOL_HOOKS_DIR:-${CURSOR_HOOKS_DIR:-$HOME/.cursor/hooks}}"
 TOOL_HOOKS_JSON="${TOOL_HOOKS_JSON:-${CURSOR_HOOKS_JSON:-$HOME/.cursor/hooks.json}}"
 OWNED_LIST="${OWNED_SKILLS_LIST:-${OWNED_AGENTS_SKILLS_LIST:-$REPO/owned-skills.txt}}"
-SYNC_SCRIPT="${CURSOR_SKILLS_SYNC_SCRIPT:-$HOME/.cursor/hooks/sync-skills-to-backup.sh}"
-LOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}/cursor-skills-sync"
+SYNC_SCRIPT="${SKILLS_SYNC_SCRIPT:-${CURSOR_SKILLS_SYNC_SCRIPT:-$HOME/.cursor/hooks/sync-skills-to-repo.sh}}"
+LOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}/skills-sync"
 TRIGGER="$LOCK_DIR/pending"
-DEBOUNCE_SECS="${CURSOR_SKILLS_SYNC_DEBOUNCE:-4}"
+DEBOUNCE_SECS="${SKILLS_SYNC_DEBOUNCE:-${CURSOR_SKILLS_SYNC_DEBOUNCE:-4}}"
 
 mkdir -p "$LOCK_DIR"
 
@@ -25,6 +26,8 @@ is_owned_skill_path() {
   case "$path" in
     "$AGENTS_SKILLS"/*) base="$AGENTS_SKILLS" ;;
     "$OPENCODE_SKILLS"/*) base="$OPENCODE_SKILLS" ;;
+    "$CURSOR_SKILLS_DIR"/*) base="$CURSOR_SKILLS_DIR" ;;
+    "$REPO/skills"/*) base="$REPO/skills" ;;
     *) return 1 ;;
   esac
   local rel="${path#"$base"/}"
@@ -35,7 +38,7 @@ is_owned_skill_path() {
 
 case "$file_path" in
   "$AGENT_DEFINITIONS"/* | "$TOOL_HOOKS_DIR"/* | "$TOOL_HOOKS_JSON") ;;
-  "$AGENTS_SKILLS"/* | "$OPENCODE_SKILLS"/*)
+  "$AGENTS_SKILLS"/* | "$OPENCODE_SKILLS"/* | "$CURSOR_SKILLS_DIR"/* | "$REPO/skills"/*)
     if ! is_owned_skill_path "$file_path"; then
       printf '%s\n' '{}'
       exit 0
