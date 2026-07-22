@@ -14,6 +14,7 @@ Branch padrão: **main** (sem `master`).
 | `cursor-agents/` | `~/.cursor/agents/` | Custom agents do Cursor |
 | `agents-skills/` | `~/.agents/skills/<nome>` | Só agents skills listadas em `owned-agents-skills.txt` |
 | `owned-agents-skills.txt` | — | Whitelist das agents skills pessoais |
+| `cursor-user-rules.md` | Settings → Rules → User Rules | Backup manual das User Rules (sem sync automático) |
 | `cursor-hooks/hooks.json` | `~/.cursor/hooks.json` | Config dos hooks de usuário |
 | `cursor-hooks/hooks/` | `~/.cursor/hooks/` | Scripts dos hooks |
 
@@ -31,6 +32,10 @@ Só as linhas de `owned-agents-skills.txt` entram no repo. Para versionar uma sk
 
 1. Adicione o nome da pasta em `owned-agents-skills.txt`
 2. Rode o sync manual (ou edite a skill e espere o hook)
+
+### User Rules (manuais)
+
+As User Rules do Cursor **não** vivem em arquivo em `~/.cursor/` (ficam no Settings / cloud). O backup é `cursor-user-rules.md` — restore = colar no Settings. Sem sync automático: ao mudar a rule no Cursor, atualize o arquivo no repo.
 
 ## Restaurar em outra máquina
 
@@ -52,6 +57,10 @@ mkdir -p ~/.cursor/hooks
 cp -a cursor-hooks/hooks.json ~/.cursor/hooks.json
 cp -a cursor-hooks/hooks/. ~/.cursor/hooks/
 chmod +x ~/.cursor/hooks/*.sh
+
+# User Rules (manual)
+# Abra Cursor Settings → Rules → User Rules e cole o bloco de
+# cursor-user-rules.md (ver instruções no próprio arquivo).
 ```
 
 ## Sync automático
@@ -83,3 +92,5 @@ Se algo for criado só via shell (`mkdir`/`cp` sem Write/StrReplace), o hook nã
 Não versionar `~/.cursor/skills-cursor/` — essa pasta é gerenciada pelo Cursor.
 
 Não versionar `~/.cursor/mcp.json` — costuma conter secrets.
+
+User Rules não entram no sync automático — veja `cursor-user-rules.md`.
