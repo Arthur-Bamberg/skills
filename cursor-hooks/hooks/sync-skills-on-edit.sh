@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# afterFileEdit: if a personal skill or user hook changed, debounce then sync backup repo.
+# afterFileEdit: if a personal skill, agent, or user hook changed, debounce then sync backup repo.
 set -euo pipefail
 
 input=$(cat)
 file_path=$(printf '%s' "$input" | jq -r '.file_path // empty')
 
 CURSOR_SKILLS="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
+CURSOR_AGENTS="${CURSOR_AGENTS_DIR:-$HOME/.cursor/agents}"
 AGENTS_SKILLS="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 CURSOR_HOOKS_DIR="${CURSOR_HOOKS_DIR:-$HOME/.cursor/hooks}"
 CURSOR_HOOKS_JSON="${CURSOR_HOOKS_JSON:-$HOME/.cursor/hooks.json}"
@@ -31,7 +32,7 @@ is_owned_agent_path() {
 }
 
 case "$file_path" in
-  "$CURSOR_SKILLS"/* | "$CURSOR_HOOKS_DIR"/* | "$CURSOR_HOOKS_JSON") ;;
+  "$CURSOR_SKILLS"/* | "$CURSOR_AGENTS"/* | "$CURSOR_HOOKS_DIR"/* | "$CURSOR_HOOKS_JSON") ;;
   "$AGENTS_SKILLS"/*)
     if ! is_owned_agent_path "$file_path"; then
       printf '%s\n' '{}'
