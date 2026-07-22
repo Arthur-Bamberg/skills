@@ -4,7 +4,7 @@
 commit-push
 envs
 feature-loop
-feature-loop-plan
+plan-feature-loop
 mvp-plan-doc
 pr-dev
 reporte-excel

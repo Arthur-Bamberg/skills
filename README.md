@@ -19,7 +19,7 @@ Branch padrão: **main**.
 
 ### Inventário
 
-**Agents skills** (`agents-skills/`, via whitelist): `commit-push`, `envs`, `feature-loop`, `feature-loop-plan`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`, `slack-grill-ship`
+**Agents skills** (`agents-skills/`, via whitelist): `commit-push`, `envs`, `feature-loop`, `plan-feature-loop`, `mvp-plan-doc`, `pr-dev`, `reporte-excel`, `slack-grill-ship`
 
 **Agents** (`cursor-agents/`): `code-reviewer`, `plano-de-testes`
 

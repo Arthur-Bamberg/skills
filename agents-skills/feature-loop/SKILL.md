@@ -10,11 +10,11 @@ Pipeline sequencial para entregar uma feature com decisões documentadas, TDD e 
 
 **Não** use o modo entrevista uma-a-uma do `grill-with-docs`. Aqui o grill é em lote: pensar → listar em markdown → repensar o conjunto → confirmar.
 
-Só plano e definições (Fases 0–2), sem implementar: use `feature-loop-plan`.
+Só plano e definições (Fases 0–2), sem implementar: use `plan-feature-loop`.
 
 Skills / refs (ler quando a fase exigir):
 
-- Plano isolado: `~/.agents/skills/feature-loop-plan/SKILL.md`
+- Plano isolado: `~/.agents/skills/plan-feature-loop/SKILL.md`
 - Domínio / formatos: `~/.agents/skills/grill-with-docs/` (`CONTEXT-FORMAT.md`, `ADR-FORMAT.md`)
 - `tdd` — `~/.agents/skills/tdd/SKILL.md`
 - `review` — `~/.agents/skills/review/SKILL.md`

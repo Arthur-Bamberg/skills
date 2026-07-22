@@ -1,6 +1,6 @@
 ---
-name: feature-loop-plan
-description: Planeja uma feature em lote — explora código e docs de domínio, lista decisões em markdown com opções e recomendação, revisa o conjunto e pede confirmação. Use quando o usuário pedir plano de feature, definições, /feature-loop-plan, ou só a fase de decisões do feature-loop sem implementar.
+name: plan-feature-loop
+description: Planeja uma feature em lote — explora código e docs de domínio, lista decisões em markdown com opções e recomendação, revisa o conjunto e pede confirmação. Use quando o usuário pedir plano de feature, definições, /plan-feature-loop, ou só a fase de decisões do feature-loop sem implementar.
 disable-model-invocation: true
 ---
 
