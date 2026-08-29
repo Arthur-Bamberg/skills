@@ -1,28 +1,29 @@
 ---
 name: pr-dev
-description: Cria branch dev-<ticket> a partir de develop (sem alterar a branch atual), valida (format/typecheck/test), publica e abre PR com base develop. Use quando o usuário pedir pr-dev, branch dev para develop, PR para dev/develop, ou publicar alterações na integração de desenvolvimento.
+description: Cria branch dev-<slug> a partir de develop (sem alterar a branch atual), valida (format/typecheck/test), publica e abre PR com base develop. Use quando o usuário pedir pr-dev, branch dev para develop, PR para dev/develop, ou publicar alterações na integração de desenvolvimento.
 ---
 
 # PR dev
 
 Fluxo para publicar trabalho na branch de integração **`develop`** (time costuma chamar de **dev**). Não usar `main` neste fluxo salvo pedido explícito.
 
-**Regra central:** sempre criar uma **nova** branch `dev-<ticket>` a partir de `develop`. **Nunca** fazer rebase, commit nem push na branch em que o usuário já estava trabalhando (ex.: `feat/BAN-XXX/...`).
+**Regra central:** sempre criar uma **nova** branch `dev-<slug>` a partir de `develop`. **Nunca** fazer rebase, commit nem push na branch em que o usuário já estava trabalhando (ex.: `feat/validacao-cnpj`).
 
 ## Pré-requisitos
 
 - Raiz do repositório git.
 - `gh` autenticado.
 - `nvm` no shell se existir `.nvmrc`.
-- Branch de destino (`dev-<ticket>`) **não** pode ser `develop`, `main` nem `master`.
+- Branch de destino (`dev-<slug>`) **não** pode ser `develop`, `main` nem `master`.
 
 ## Nome da branch de destino
 
-Padrão obrigatório: **`dev-<ticket>`** (ex.: `dev-BAN-592`).
+Padrão obrigatório: **`dev-<slug>`** (ex.: `dev-validacao-cnpj`).
 
-- Extrair o ticket do nome da branch atual (ex.: `feat/BAN-592/cnpj` → `BAN-592`) ou do pedido do usuário.
-- Se o usuário informar outro sufixo, usar `dev-<sufixo>` mantendo o prefixo `dev-`.
-- Se `dev-<ticket>` já existir local ou no remoto: perguntar se deve usar sufixo (`dev-BAN-592-2`) ou reutilizar a existente; **não** sobrescrever a branch de feature original.
+- Se o usuário informar o nome ou o sufixo, usar `dev-<slug>` em kebab-case.
+- Senão, derivar de `ORIGEM`: remover prefixos de tipo (`feat/`, `fix/`, `chore/`, `hotfix/`, `refactor/`, `docs/`, `test/`, `perf/`, `ci/`, `build/`, `style/`), trocar `/` restantes por `-`, lowercase.
+- **Não** exigir ticket Jira. Um código de ticket no nome da origem, se existir, entra no slug só como texto do caminho — não extraia ticket como identificador obrigatório.
+- Se `dev-<slug>` já existir local ou no remoto: perguntar se deve usar sufixo (`dev-validacao-cnpj-2`) ou reutilizar a existente; **não** sobrescrever a branch de feature original.
 
 ## Fluxo
 
@@ -39,12 +40,11 @@ Guardar a branch de origem (não será alterada pelo fluxo):
 ORIGEM="$(git branch --show-current)"
 ```
 
-- Identificar `<ticket>` a partir de `ORIGEM` ou perguntar ao usuário.
-- Definir `DESTINO="dev-<ticket>"`.
+- Definir `DESTINO="dev-<slug>"` (pedido do usuário ou derivado de `ORIGEM`).
 - Se `ORIGEM` for `develop`, `main` ou `master`: ok — o trabalho será levado só para `DESTINO`.
 - Alterações não commitadas: serão levadas via `stash` no passo 2 (a branch `ORIGEM` permanece intacta após o fluxo).
 
-### 2. Criar `dev-<ticket>` a partir de develop (sem tocar em `ORIGEM`)
+### 2. Criar `dev-<slug>` a partir de develop (sem tocar em `ORIGEM`)
 
 ```bash
 git fetch origin develop
@@ -172,7 +172,7 @@ Entregar ao usuário:
 ## Checklist
 
 ```
-- [ ] Ticket identificado; DESTINO=dev-<ticket>
+- [ ] DESTINO=dev-<slug> (sem exigir ticket)
 - [ ] ORIGEM preservada (sem rebase/commit/push nela)
 - [ ] DESTINO criada a partir de origin/develop
 - [ ] Commits/stash portados para DESTINO (cherry-pick/stash)
@@ -192,4 +192,4 @@ Entregar ao usuário:
 ## Relação com outras skills
 
 - PR para **`main`**: skill pessoal `commit-push` (`~/.agents/skills/commit-push/`).
-- Este fluxo é exclusivo para integração em **`develop`** via branch **`dev-<ticket>`**.
+- Este fluxo é exclusivo para integração em **`develop`** via branch **`dev-<slug>`**.
