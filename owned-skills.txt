@@ -7,4 +7,3 @@ feature-loop
 plan-feature-loop
 mvp-plan-doc
 pr-dev
-reporte-excel
